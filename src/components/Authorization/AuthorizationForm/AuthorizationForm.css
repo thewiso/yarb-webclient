@@ -1,0 +1,18 @@
+.authorizationCard {
+	width: 25rem;
+}
+
+.authorizationCardButtonContainer{
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.authorizationFormWrapper{
+	margin: 1rem 0 3rem 0
+}
+
+.authorizationInputWrapper {
+	margin-bottom: 1rem;
+}
+

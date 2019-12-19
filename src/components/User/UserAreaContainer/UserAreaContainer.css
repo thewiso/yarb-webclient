@@ -1,0 +1,20 @@
+.userAreaRoot {
+	display: block;
+}
+
+.userAreaHorizontalContainer {
+	display: flex;
+}
+
+.sideNavBar {
+	width: 200px;/*TODO: */
+}
+
+.sideNavBar .leftMenu {
+	top: unset;
+	width: 200px;
+}
+
+.userAreaContent {
+	flex-grow: 1;
+}
