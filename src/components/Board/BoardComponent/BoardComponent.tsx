@@ -8,7 +8,8 @@ import {
 	Toolbar,
 	Typography,
 	withStyles,
-	WithStyles
+	WithStyles,
+	CircularProgress
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import { createStyles } from "@material-ui/styles";
@@ -19,6 +20,8 @@ import YarbApi from "../../../api/yarb/yarb-api";
 import NoteCard from "../NoteCard/NoteCard";
 import CreateOrEditNoteDialog from "../CreateOrEditNoteDialog/CreateOrEditNoteDialog";
 import DeleteNoteDialog from "../DeleteNoteDialog/DeleteNoteDialog";
+import { YarbErrorHandler } from "../../../api/Utils/YarbErrorHandler";
+import { AxiosError } from "axios";
 
 const styles = (theme: Theme) =>
 	createStyles({
@@ -57,6 +60,11 @@ const styles = (theme: Theme) =>
 		},
 		boardTitle: {
 			marginTop: theme.spacing(2)
+		},
+		loadingCircle: {
+			position: "fixed",
+			top: "50%",
+			left: "50%"
 		}
 	});
 
@@ -64,7 +72,7 @@ interface MatchParams {//TODO: alle px werte mit theme spacing ersetzen
 	id: string;
 }
 
-interface BoardComponentProperties extends RouteComponentProps<MatchParams>, WithStyles<typeof styles> {}
+interface BoardComponentProperties extends RouteComponentProps<MatchParams>, WithStyles<typeof styles> { }
 interface BoardComponentState {
 	board?: Board;
 	boardId: number;
@@ -77,11 +85,9 @@ interface BoardComponentState {
 class BoardComponent extends React.Component<BoardComponentProperties, BoardComponentState> {
 	constructor(props: BoardComponentProperties) {
 		super(props);
-		//TODO: errorhandling
-		const boardId = Number.parseInt(this.props.match.params.id);
 
 		this.state = {
-			boardId: boardId,
+			boardId: NaN,
 			deleteDialogOpen: false,
 			noteDialogOpen: false
 		};
@@ -93,15 +99,27 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 			.then(response => {
 				this.setState({ board: response.data });
 			})
-			.catch(error => {
-				//TODO: 404=redirect
-				console.error(error);
-				//TODO:!
+			.catch((error: AxiosError) => {
+				if (error.response && error.response.status === 404) {
+					this.redirectToHome();
+				} else {
+					YarbErrorHandler.getInstance().handleUnexpectedError(error);
+				}
 			});
 	}
 
-	componentWillMount() {
-		this.loadBoard();
+	componentDidMount() {
+		this.setState({ boardId: Number.parseInt(this.props.match.params.id) }, () => {
+			if (isNaN(this.state.boardId)) {
+				this.redirectToHome();
+			} else {
+				this.loadBoard();
+			}
+		})
+	}
+
+	private redirectToHome(): void {
+		this.props.history.push("/");
 	}
 
 	private createBoardColumns(): JSX.Element[] {
@@ -225,7 +243,9 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 				</div>
 			);
 		} else {
-			return <div>TODO:</div>;
+			return <div>
+				<CircularProgress className={this.props.classes.loadingCircle} />
+			</div>;
 		}
 	}
 }

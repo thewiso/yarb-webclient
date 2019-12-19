@@ -45,7 +45,7 @@ class Register extends AuthorizationForm<RegisterState> {
 				this.handleValidationChange.bind(this)
 			)
 		};
-	}
+	}//TODO: change first passwordInput after secondInput is valid
 	
 	private handleValidationChange(validation: TextFieldValidation) {
 		let newState: RegisterState = Object.assign({}, this.state);
@@ -75,6 +75,7 @@ class Register extends AuthorizationForm<RegisterState> {
 						validation={this.state.usernameValidation}
 						label="Username"
 						className="authorizationInput"
+						fullWidth
 					/>
 				</div>
 
@@ -85,6 +86,7 @@ class Register extends AuthorizationForm<RegisterState> {
 						label="Password"
 						validation={this.state.passwordValidation}
 						className="authorizationInput"
+						fullWidth
 					/>
 				</div>
 
@@ -95,6 +97,7 @@ class Register extends AuthorizationForm<RegisterState> {
 						label="Password"
 						validation={this.state.passwordRepetitionValidation}
 						className="authorizationInput"
+						fullWidth
 					/>
 				</div>
 			</div>

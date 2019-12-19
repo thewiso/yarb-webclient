@@ -8,7 +8,6 @@ import { YarbErrorHandler } from "../Utils/YarbErrorHandler";
 const axios = Axios.create({
 	transformResponse: [AxiosDeserialization]
 });
-console.info(axios.defaults.transformResponse);
 
 class YarbApi extends DefaultApi {
 	constructor() {
@@ -17,8 +16,7 @@ class YarbApi extends DefaultApi {
 		this.axios.interceptors.response.use(
 			response => response,
 			rejectedResponse => {
-				YarbErrorHandler.getInstance().handleRejectedResponse(rejectedResponse);
-				return rejectedResponse;
+				return YarbErrorHandler.getInstance().handleRejectedResponse(rejectedResponse);
 			}
 		);
 	}

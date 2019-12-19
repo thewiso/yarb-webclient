@@ -11,7 +11,7 @@ import { Drawer, Typography, Theme, createStyles, WithStyles, withStyles } from 
 import { YarbError, YarbErrorType, YarbErrorHandler } from "../../api/Utils/YarbErrorHandler";
 import ErrorIcon from "@material-ui/icons/Error";
 
-interface AppProperties extends WithStyles<typeof styles> {}
+interface AppProperties extends WithStyles<typeof styles> { }
 interface AppState {
 	errorDrawerOpen: boolean;
 	errorDrawerText: string;
@@ -50,12 +50,10 @@ class App extends React.Component<AppProperties, AppState> {
 	}
 
 	handleAxiosError(error: YarbError) {
-		if (error.type === YarbErrorType.NetworkError || error.type === YarbErrorType.InternalServerError) {
-			this.setState({
-				errorDrawerOpen: true,
-				errorDrawerText: error.message
-			});
-		}
+		this.setState({
+			errorDrawerOpen: true,
+			errorDrawerText: error.message
+		});
 	}
 
 	handleErrorDialogClose(): void {
@@ -95,7 +93,7 @@ class App extends React.Component<AppProperties, AppState> {
 				<Drawer anchor="bottom" open={this.state.errorDrawerOpen} onClose={this.handleErrorDialogClose.bind(this)}>
 					<div className={this.props.classes.errorDrawerContent}>
 						<div className={this.props.classes.errorDrawerTitleContainer}>
-							<ErrorIcon color="secondary" fontSize="large"/>
+							<ErrorIcon color="secondary" fontSize="large" />
 							<Typography variant="h5" className={this.props.classes.errorDrawerTitle} >
 								An error occured
 							</Typography>

@@ -20,7 +20,7 @@ import "./CreateBoardDialog.css";
 import YarbApi from "../../../api/yarb/yarb-api";
 import { CreateBoard } from "../../../api/yarb/gen/model/create-board";
 
-interface CreateBoardDialogProperties {
+interface CreateBoardDialogProperties {//TODO: create second board -> reset values
 	open: boolean;
 	onClose: (reload: boolean) => void;
 }

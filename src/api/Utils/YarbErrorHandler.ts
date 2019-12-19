@@ -1,11 +1,11 @@
 import { InternalErrorMessage } from "../yarb/gen/model";
+import { AxiosError } from "axios";
 
 
 export enum YarbErrorType {
 	NetworkError,
 	InternalServerError,
-	AuthenticationError,
-	AuthorisationError
+	UnhandledError
 }
 
 export interface YarbError {
@@ -33,20 +33,18 @@ export class YarbErrorHandler {
 		return YarbErrorHandler.instance;
 	}
 
-	public handleRejectedResponse(rejectedResponse: any): void {//TODO: log error
+	public handleRejectedResponse(rejectedResponse: AxiosError): any {//TODO: log error
 		let errorResult: YarbError | undefined;
-		if (rejectedResponse instanceof Error) {
-			if (rejectedResponse.message === "Network Error") {
-				errorResult = NetworkError;
-			}
+		if (rejectedResponse.message === "Network Error") {
+			errorResult = NetworkError;
 		}
-		if(rejectedResponse.response){
+		if (rejectedResponse.response) {
 			let status: number = rejectedResponse.response.status;
-			if(status === 500){
+			if (status === 500) {
 				let errorMessage = "The server had an internal error. "
 				let internalErrorMessage = rejectedResponse.response.data;
 				//check if this is a InternalErrorMessage
-				if(internalErrorMessage.exceptionId){
+				if (internalErrorMessage.exceptionId) {
 					errorMessage += "When reporting a bug, please provide this error id: " + internalErrorMessage.exceptionId;
 				}
 				errorResult = {
@@ -55,13 +53,20 @@ export class YarbErrorHandler {
 				}
 			}
 		}
-		
 
-		// console.log(rejectedResponse.response.status);
-		// rejectedResponse.
-		if(errorResult){
+		if (errorResult) {
 			this.notifyListeners(errorResult);
+			return rejectedResponse;
+		} else {
+			return Promise.reject(rejectedResponse);
 		}
+	}
+
+	public handleUnexpectedError(error: any): void {
+		this.notifyListeners({
+			type: YarbErrorType.UnhandledError,
+			message: "Unexpected error: " + JSON.stringify(error),
+		})
 	}
 
 	private notifyListeners(error: YarbError) {
@@ -70,7 +75,7 @@ export class YarbErrorHandler {
 		});
 	}
 
-	public addErrorListener(listener: (error: YarbError) => void){
+	public addErrorListener(listener: (error: YarbError) => void) {
 		this.listeners.push(listener);
 	}
 }
