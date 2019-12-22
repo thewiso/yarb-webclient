@@ -1,5 +1,4 @@
 import YarbApi from "../../api/yarb/yarb-api";
-import Login from "../../components/Authorization/Login/Login";
 
 const LOCALSTORAGE_JWT = "yarb.jwt";
 //Expiration time of the JWT - REFRESH_BUFFER_MILLIS = The point in time when the JWT is refreshed
