@@ -14,7 +14,7 @@ class BoardCard extends React.Component<BoardCardProperties, BoardCardState> {
 		this.state = {};
 	}
 
-	render() {
+	render(): React.ReactNode {
 		return (
 			<Card>
 				<CardContent>

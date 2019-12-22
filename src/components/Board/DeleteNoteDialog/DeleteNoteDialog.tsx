@@ -1,16 +1,9 @@
-import {
-	Button,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	TextareaAutosize,
-	TextField,
-	DialogContentText
-} from "@material-ui/core";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@material-ui/core";
 import React from "react";
-import { CreateBoardNote, BoardNote } from "../../../api/yarb/gen/model";
+import { BoardNote } from "../../../api/yarb/gen/model";
 import YarbApi from "../../../api/yarb/yarb-api";
+import { AxiosError } from "axios";
+import { YarbErrorHandler } from "../../../api/Utils/YarbErrorHandler";
 
 interface DeleteNoteDialogProperties {
 	open: boolean;
@@ -25,27 +18,38 @@ class DeleteNoteDialog extends React.Component<DeleteNoteDialogProperties, Delet
 		this.state = {};
 	}
 
-	handleConfirm() {
+	handleConfirm(): void {
 		if (this.props.note) {
 			new YarbApi()
 				.deleteNote(this.props.note.id)
-				.then(() => {
-					this.props.onClose(true);
+				.then(() => {})
+				.catch((error: AxiosError) => {
+					if (error.response && error.response.status !== 404) {
+						YarbErrorHandler.getInstance().handleUnexpectedError(error);
+					}
 				})
-				.catch(error => {
-					//TODO:
-					console.error(error);
+				.finally(() => {
+					this.props.onClose(true);
 				});
-		} else {
-			throw new Error("TODO:");
 		}
 	}
 
-	handleClose() {
+	componentWillReceiveProps(nextProps: DeleteNoteDialogProperties): void {
+		if (nextProps.open && !nextProps.note) {
+			throw new Error("No note is given");
+		}
+		if (!this.props.open && nextProps.open) {
+			this.setState({
+				content: nextProps.note ? nextProps.note.content : ""
+			});
+		}
+	}
+
+	handleClose(): void {
 		this.props.onClose(false);
 	}
 
-	render() {
+	render(): React.ReactNode {
 		return (
 			<Dialog open={this.props.open} onClose={this.handleClose.bind(this)}>
 				<DialogTitle>Delete Note</DialogTitle>

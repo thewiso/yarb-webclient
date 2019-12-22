@@ -1,11 +1,26 @@
-import { Button, Typography, Grid } from "@material-ui/core";
+import { createStyles, Fab, Grid, Theme, Typography, WithStyles, withStyles } from "@material-ui/core";
+import AddIcon from "@material-ui/icons/Add";
 import React from "react";
-import YarbApi from "../../../api/yarb/yarb-api";
-import CreateBoardDialog from "../CreateBoardDialog/CreateBoardDialog";
-import BoardCard from "../BoardCard/BoardCard";
+import { YarbErrorHandler } from "../../../api/Utils/YarbErrorHandler";
 import { Board } from "../../../api/yarb/gen/model/board";
+import YarbApi from "../../../api/yarb/yarb-api";
+import BoardCard from "../BoardCard/BoardCard";
+import CreateBoardDialog from "../CreateBoardDialog/CreateBoardDialog";
 
-interface BoardOverviewProperties {}
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const styles = (theme: Theme) =>
+	createStyles({
+		addButton: {
+			position: "absolute",
+			bottom: theme.spacing(4),
+			right: theme.spacing(4),
+		},
+		titleContainer: {
+			marginBottom: theme.spacing(2)
+		}
+	});
+
+interface BoardOverviewProperties extends WithStyles<typeof styles> {}
 interface BoardOverviewState {
 	boards: Board[];
 	createBoardDialogOpen: boolean;
@@ -20,16 +35,16 @@ class BoardOverview extends React.Component<BoardOverviewProperties, BoardOvervi
 		};
 	}
 
-	handleCreateBoardButtonClick() {
+	handleCreateBoardButtonClick(): void {
 		this.setState({ createBoardDialogOpen: true });
 	}
 
-	handleCreateBoardClose(reload: boolean) {
+	handleCreateBoardClose(reload: boolean): void {
 		this.loadBoards();
 		this.setState({ createBoardDialogOpen: false });
 	}
 
-	componentDidMount() {
+	componentDidMount(): void {
 		this.loadBoards();
 	}
 
@@ -40,42 +55,44 @@ class BoardOverview extends React.Component<BoardOverviewProperties, BoardOvervi
 				this.setState({ boards: response.data });
 			})
 			.catch(error => {
-				console.error(error);
-				//TODO:!
+				YarbErrorHandler.getInstance().handleUnexpectedError(error);
 			});
 	}
 
-	render() {
+	render(): React.ReactNode {
 		return (
 			<div>
-				<div>
-					<Typography variant="h3">Boards</Typography>
+				<div className={this.props.classes.titleContainer}>
+					<Typography variant="h4" display="inline">Boards</Typography>
 				</div>
+				<Fab
+						color="primary"
+						aria-label="add"
+						size="small"
+						className={this.props.classes.addButton}
+						onClick={this.handleCreateBoardButtonClick.bind(this)}
+					>
+						<AddIcon />
+					</Fab>
+
 				<div>
-					<div>
-						<Button variant="contained" color="primary" onClick={this.handleCreateBoardButtonClick.bind(this)}>
-							Create//TODO: as floating action button?
-						</Button>
-						<CreateBoardDialog
-							open={this.state.createBoardDialogOpen}
-							onClose={this.handleCreateBoardClose.bind(this)}
-						/>
-					</div>
-					{this.state.boards.length === 0 && <div>Oh wow, such empty</div>}
-					<Grid container spacing={3}>
+					{this.state.boards.length === 0 && <div>
+						Click on the plus icon on the right to create a new board!</div>}
+					<Grid container spacing={2}>
 						{this.state.boards.map((
-							board //TODO: formatting margins etc.
+							board
 						) => (
 							//https://material-ui.com/components/grid-list/
 							<Grid item xs={3}>
-								<BoardCard board={board}/>
+								<BoardCard board={board} />
 							</Grid>
 						))}
 					</Grid>
 				</div>
+				<CreateBoardDialog open={this.state.createBoardDialogOpen} onClose={this.handleCreateBoardClose.bind(this)} />
 			</div>
 		);
 	}
 }
 
-export default BoardOverview;
+export default withStyles(styles, { withTheme: true })(BoardOverview);

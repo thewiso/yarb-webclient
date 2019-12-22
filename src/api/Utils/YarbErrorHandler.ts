@@ -1,4 +1,3 @@
-import { InternalErrorMessage } from "../yarb/gen/model";
 import { AxiosError } from "axios";
 
 
@@ -33,7 +32,7 @@ export class YarbErrorHandler {
 		return YarbErrorHandler.instance;
 	}
 
-	public handleRejectedResponse(rejectedResponse: AxiosError): any {//TODO: log error
+	public handleRejectedResponse(rejectedResponse: AxiosError): any {
 		let errorResult: YarbError | undefined;
 		if (rejectedResponse.message === "Network Error") {
 			errorResult = NetworkError;
@@ -62,20 +61,21 @@ export class YarbErrorHandler {
 		}
 	}
 
-	public handleUnexpectedError(error: any): void {
+	public handleUnexpectedError(error: AxiosError): void {
 		this.notifyListeners({
 			type: YarbErrorType.UnhandledError,
 			message: "Unexpected error: " + JSON.stringify(error),
 		})
 	}
 
-	private notifyListeners(error: YarbError) {
+	private notifyListeners(error: YarbError): void {
+		console.error(error);
 		this.listeners.forEach(listener => {
 			listener(error);
 		});
 	}
 
-	public addErrorListener(listener: (error: YarbError) => void) {
+	public addErrorListener(listener: (error: YarbError) => void): void {
 		this.listeners.push(listener);
 	}
 }

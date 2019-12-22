@@ -1,4 +1,19 @@
-import { AppBar, Divider, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Toolbar, Typography } from "@material-ui/core";
+import {
+	AppBar,
+	Divider,
+	Drawer,
+	IconButton,
+	List,
+	ListItem,
+	ListItemIcon,
+	ListItemText,
+	Toolbar,
+	Typography,
+	createStyles,
+	Theme,
+	WithStyles,
+	withStyles
+} from "@material-ui/core";
 import AppsIcon from "@material-ui/icons/Apps";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import InfoIcon from "@material-ui/icons/Info";
@@ -6,10 +21,36 @@ import React from "react";
 import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-router-dom";
 import JWT from "../../../scripts/Cache/JWT";
 import BoardOverview from "../BoardOverview/BoardOverview";
-import "./UserAreaContainer.css";
+import About from "../About/About";
 
-interface UserAreaContainerProperties extends RouteComponentProps {}
+interface UserAreaContainerProperties extends RouteComponentProps, WithStyles<typeof styles> {}
 interface UserAreaContainerState {}
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const styles = (theme: Theme) =>
+	createStyles({
+		userAreaRoot: {
+			display: "block"
+		},
+		userAreaHorizontalContainer: {
+			display: "flex"
+		},
+		sideNavBar: {
+			width: theme.spacing(20)
+		},
+		leftMenu: {
+			top: "unset",
+			width: theme.spacing(20)
+		},
+		userAreaContent: {
+			flexGrow: 1,
+			padding: theme.spacing(4),
+			position: "relative"
+		},
+		appBarTitle: {
+			flexGrow: 1
+		}
+	});
 
 class UserAreaContainer extends React.Component<UserAreaContainerProperties, UserAreaContainerState> {
 	constructor(props: UserAreaContainerProperties) {
@@ -22,12 +63,12 @@ class UserAreaContainer extends React.Component<UserAreaContainerProperties, Use
 		this.props.history.push("/login");
 	}
 
-	render() {
+	render(): React.ReactNode {
 		return (
-			<div className="userAreaRoot">
+			<div className={this.props.classes.userAreaRoot}>
 				<AppBar position="static">
 					<Toolbar>
-						<Typography variant="h6" className="appBarTitle">
+						<Typography variant="h6" className={this.props.classes.appBarTitle}>
 							YARB
 						</Typography>
 						<IconButton edge="start" color="inherit" aria-label="logout" onClick={this.handleOnClick}>
@@ -35,13 +76,13 @@ class UserAreaContainer extends React.Component<UserAreaContainerProperties, Use
 						</IconButton>
 					</Toolbar>
 				</AppBar>
-				<div className="userAreaHorizontalContainer">
+				<div className={this.props.classes.userAreaHorizontalContainer}>
 					<Drawer
-						className="sideNavBar"
+						className={this.props.classes.sideNavBar}
 						variant="permanent"
 						anchor="left"
 						classes={{
-							paper: "leftMenu"
+							paper: this.props.classes.leftMenu
 						}}
 					>
 						<List>
@@ -70,11 +111,10 @@ class UserAreaContainer extends React.Component<UserAreaContainerProperties, Use
 							</ListItem>
 						</List>
 					</Drawer>
-					<main className="userAreaContent">
+					<main className={this.props.classes.userAreaContent}>
 						<Switch>
-							{/*TODO: ugly:*/}
 							<Route exact path={this.props.match.url + "/boards"} render={() => <BoardOverview />} />
-							<Route exact path={this.props.match.url + "/about"} render={() => <div>ABOUT</div>} />
+							<Route exact path={this.props.match.url + "/about"} render={() => <About />} />
 							<Redirect from={this.props.match.url + "*"} to={this.props.match.url + "/boards"} />
 						</Switch>
 					</main>
@@ -84,4 +124,4 @@ class UserAreaContainer extends React.Component<UserAreaContainerProperties, Use
 	}
 }
 
-export default withRouter(UserAreaContainer);
+export default withStyles(styles, { withTheme: true })(withRouter(UserAreaContainer));

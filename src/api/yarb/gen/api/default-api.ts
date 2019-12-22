@@ -391,6 +391,37 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Refresh a token and get userId
+         * @summary refreshToken
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        refreshToken(options: any = {}): RequestArgs {
+            const localVarPath = `/auth/token`;
+            const localVarUrlObj = globalImportUrl.parse(localVarPath, true);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+
+
+    
+            localVarUrlObj.query = {...localVarUrlObj.query, ...localVarQueryParameter, ...options.query};
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...options.headers};
+
+            return {
+                url: globalImportUrl.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Update a note
          * @summary updateNote
          * @param {number} noteId 
@@ -580,6 +611,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * Refresh a token and get userId
+         * @summary refreshToken
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        refreshToken(options?: any): (axios?: AxiosInstance, basePath?: string) => AxiosPromise<LoginData> {
+            const localVarAxiosArgs = DefaultApiAxiosParamCreator(configuration).refreshToken(options);
+            return (axios: AxiosInstance = globalAxios, basePath: string = BASE_PATH) => {
+                const axiosRequestArgs = {...localVarAxiosArgs.options, url: basePath + localVarAxiosArgs.url};
+                return axios.request(axiosRequestArgs);
+            };
+        },
+        /**
          * Update a note
          * @summary updateNote
          * @param {number} noteId 
@@ -702,6 +746,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         postVote(noteId: number, options?: any) {
             return DefaultApiFp(configuration).postVote(noteId, options)(axios, basePath);
+        },
+        /**
+         * Refresh a token and get userId
+         * @summary refreshToken
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        refreshToken(options?: any) {
+            return DefaultApiFp(configuration).refreshToken(options)(axios, basePath);
         },
         /**
          * Update a note
@@ -842,6 +895,17 @@ export class DefaultApi extends BaseAPI {
      */
     public postVote(noteId: number, options?: any) {
         return DefaultApiFp(this.configuration).postVote(noteId, options)(this.axios, this.basePath);
+    }
+
+    /**
+     * Refresh a token and get userId
+     * @summary refreshToken
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public refreshToken(options?: any) {
+        return DefaultApiFp(this.configuration).refreshToken(options)(this.axios, this.basePath);
     }
 
     /**

@@ -1,6 +1,9 @@
 import YarbApi from "../../api/yarb/yarb-api";
+import Login from "../../components/Authorization/Login/Login";
 
 const LOCALSTORAGE_JWT = "yarb.jwt";
+//Expiration time of the JWT - REFRESH_BUFFER_MILLIS = The point in time when the JWT is refreshed
+const REFRESH_BUFFER_MILLIS = 1000 * 10;
 
 interface JWTPayload {
 	exp: number;
@@ -9,7 +12,7 @@ interface JWTPayload {
 
 class JWT {
 	private static instance: JWT;
-	public static getInstance() {
+	public static getInstance(): JWT {
 		if (!JWT.instance) {
 			JWT.instance = new JWT();
 		}
@@ -17,7 +20,8 @@ class JWT {
 	}
 
 	private jwtString: string | null = null;
-	private userId: number | null = null;
+	private jwtPayload: JWTPayload | null = null;
+	private timeoutId: number | null = null;
 
 	private constructor() {
 		const jwtString = localStorage.getItem(LOCALSTORAGE_JWT);
@@ -29,7 +33,7 @@ class JWT {
 			const expirationMillis = jwtPayload.exp * 1000;
 			const expirationDate: Date = new Date(expirationMillis);
 			console.info(
-				`JWT expires at: ${expirationDate.getHours()}:${expirationDate.getMinutes()}:${expirationDate.getSeconds()}} `
+				`JWT expires at: ${expirationDate.getHours()}:${expirationDate.getMinutes()}:${expirationDate.getSeconds()} `
 			);
 			return Date.now() < expirationMillis;
 		}
@@ -53,20 +57,41 @@ class JWT {
 		return this.jwtString;
 	}
 
-	public setJWTString(jwtString: string | null) {
-		//TODO: automatic refresh
+	public setJWTString(jwtString: string | null): void {
 		const jwtPayload = JWT.getJWTPayload(jwtString);
 		if (jwtString != null && jwtPayload != null && JWT.isValid(jwtPayload)) {
 			this.jwtString = jwtString;
-			this.userId = jwtPayload.sub;
+			this.jwtPayload = jwtPayload;
 			localStorage.setItem(LOCALSTORAGE_JWT, jwtString);
+
+			if (this.timeoutId) {
+				window.clearTimeout(this.timeoutId);
+			}
+			const expirationMillis = this.jwtPayload.exp * 1000;
+			const timeOut = expirationMillis - Date.now() - REFRESH_BUFFER_MILLIS;
+			this.timeoutId = window.setTimeout(this.refreshToken.bind(this), timeOut);
 		} else {
 			this.remove();
 		}
 	}
 
+	private refreshToken(): void {
+		if (this.jwtString) {
+			console.info("Refreshing JWT...")
+			new YarbApi()
+				.refreshToken()
+				.then(response => {
+					this.setJWTString(response.data.token);
+				})
+				.catch(error => {
+					console.error(`Could not refresh JWT: ${this.jwtString}`)
+					this.remove();
+				});
+		}
+	}
+
 	public remove(): void {
-		this.userId = null;
+		this.jwtPayload = null;
 		this.jwtString = null;
 		localStorage.removeItem(LOCALSTORAGE_JWT);
 	}
@@ -76,7 +101,17 @@ class JWT {
 	}
 
 	public getUserId(): number | null {
-		return this.userId;
+		if (this.jwtPayload) {
+			return this.jwtPayload.sub;
+		}
+		return null;
+	}
+
+	public getExpirationDate(): Date | null {
+		if (this.jwtPayload) {
+			return new Date(this.jwtPayload.exp * 1000);
+		}
+		return null;
 	}
 }
 

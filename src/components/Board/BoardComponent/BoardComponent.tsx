@@ -23,6 +23,7 @@ import DeleteNoteDialog from "../DeleteNoteDialog/DeleteNoteDialog";
 import { YarbErrorHandler } from "../../../api/Utils/YarbErrorHandler";
 import { AxiosError } from "axios";
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const styles = (theme: Theme) =>
 	createStyles({
 		column: {
@@ -68,7 +69,7 @@ const styles = (theme: Theme) =>
 		}
 	});
 
-interface MatchParams {//TODO: alle px werte mit theme spacing ersetzen
+interface MatchParams {
 	id: string;
 }
 
@@ -108,7 +109,7 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 			});
 	}
 
-	componentDidMount() {
+	componentDidMount(): void {
 		this.setState({ boardId: Number.parseInt(this.props.match.params.id) }, () => {
 			if (isNaN(this.state.boardId)) {
 				this.redirectToHome();
@@ -153,7 +154,7 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 							className={this.props.classes.addButton}
 							onClick={(() => {
 								this.handleAddButtonClick(column.id);
-							}).bind(this)}
+							})}
 						>
 							<AddIcon />
 						</Fab>
@@ -169,14 +170,14 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 		return retVal;
 	}
 
-	handleAddButtonClick(columnId: number) {
+	handleAddButtonClick(columnId: number): void {
 		this.setState({
 			selectedColumnId: columnId,
 			noteDialogOpen: true
 		});
 	}
 
-	handleCreateOrEditNoteDialogClose(reload: boolean) {
+	handleCreateOrEditNoteDialogClose(reload: boolean): void {
 		this.setState({
 			selectedColumnId: undefined,
 			selectedNote: undefined,
@@ -187,14 +188,14 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 		}
 	}
 
-	handleCardDelete(boardNote: BoardNote) {
+	handleCardDelete(boardNote: BoardNote): void {
 		this.setState({
 			selectedNote: boardNote,
 			deleteDialogOpen: true
 		});
 	}
 
-	handleDeleteNoteDialogClose(reload: boolean) {
+	handleDeleteNoteDialogClose(reload: boolean): void {
 		this.setState({
 			selectedNote: undefined,
 			deleteDialogOpen: false
@@ -204,20 +205,20 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 		}
 	}
 
-	handleCardEdit(boardNote: BoardNote) {
+	handleCardEdit(boardNote: BoardNote): void {
 		this.setState({
 			selectedNote: boardNote,
 			noteDialogOpen: true
 		});
 	}
 
-	render() {
+	render(): React.ReactNode {
 		if (this.state.board) {
 			return (
 				<div className={this.props.classes.container}>
 					<AppBar position="static">
 						<Toolbar>
-							<Typography variant="h6" className="appBarTitle">
+							<Typography variant="h6">
 								YARB
 							</Typography>
 						</Toolbar>

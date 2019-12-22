@@ -9,15 +9,18 @@ import {
 	WithStyles,
 	withStyles
 } from "@material-ui/core";
+import { yellow } from "@material-ui/core/colors";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
-import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 import FavoriteIcon from "@material-ui/icons/Favorite";
+import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
 import React from "react";
 import { BoardNote } from "../../../api/yarb/gen/model";
 import YarbApi from "../../../api/yarb/yarb-api";
-import { yellow, red } from "@material-ui/core/colors";
+import { AxiosError } from "axios";
+import { YarbErrorHandler } from "../../../api/Utils/YarbErrorHandler";
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const styles = (theme: Theme) =>
 	createStyles({
 		voteButton: {
@@ -58,29 +61,37 @@ class NoteCard extends React.Component<NoteCardProperties, NoteCardState> {
 				.postVote(this.props.note.id)
 				.then(result => {
 					this.setState({ voted: true });
-					this.props.onChange(this.props.note);
 				})
-				.catch //TODO:
-				();
+				.catch((error: AxiosError) => {
+					if (error.response && error.response.status !== 404) {
+						YarbErrorHandler.getInstance().handleUnexpectedError(error);
+					}
+				})
+				.finally(() => {
+					this.props.onChange(this.props.note);
+				});
 		} else {
 			new YarbApi()
 				.deleteVote(this.props.note.id)
 				.then(result => {
 					this.setState({ voted: false });
-					this.props.onChange(this.props.note);
 				})
-				.catch //TODO:
-				();
+				.catch((error: AxiosError) => {
+					if (error.response && error.response.status !== 404) {
+						YarbErrorHandler.getInstance().handleUnexpectedError(error);
+					}
+				})
+				.finally(() => {
+					this.props.onChange(this.props.note);
+				});
 		}
 	}
 
-	render() {
+	render(): React.ReactNode {
 		return (
 			<Card className={this.props.classes.noteCard}>
 				<CardContent>
-					<Typography className={this.props.classes.cardText}>
-						{this.props.note.content}
-					</Typography>
+					<Typography className={this.props.classes.cardText}>{this.props.note.content}</Typography>
 					<Typography align="right" color="textSecondary" variant="body2">
 						{this.props.note.votes} Votes
 					</Typography>

@@ -1,15 +1,15 @@
+import { createStyles, Drawer, Theme, Typography, WithStyles, withStyles } from "@material-ui/core";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import ErrorIcon from "@material-ui/icons/Error";
 import React from "react";
 import { BrowserRouter as Router, Redirect, Route, Switch } from "react-router-dom";
+import { YarbError, YarbErrorHandler } from "../../api/Utils/YarbErrorHandler";
+import JWT from "../../scripts/Cache/JWT";
 import AuthorizationContainer from "../Authorization/AuthorizationContainer/AuthorizationContainer";
+import BoardComponent from "../Board/BoardComponent/BoardComponent";
 import RouterFilter from "../RouterFilter/RouterFilter";
 import UserAreaContainer from "../User/UserAreaContainer/UserAreaContainer";
 import "./App.css";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import JWT from "../../scripts/Cache/JWT";
-import BoardComponent from "../Board/BoardComponent/BoardComponent";
-import { Drawer, Typography, Theme, createStyles, WithStyles, withStyles } from "@material-ui/core";
-import { YarbError, YarbErrorType, YarbErrorHandler } from "../../api/Utils/YarbErrorHandler";
-import ErrorIcon from "@material-ui/icons/Error";
 
 interface AppProperties extends WithStyles<typeof styles> { }
 interface AppState {
@@ -17,6 +17,7 @@ interface AppState {
 	errorDrawerText: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const styles = (theme: Theme) =>
 	createStyles({
 		errorDrawerContent: {
@@ -34,11 +35,6 @@ const styles = (theme: Theme) =>
 	});
 
 class App extends React.Component<AppProperties, AppState> {
-	//TODO: eslint with force return type
-	/*TODO: general handling of: 
-	-500 (show error id)
-	-401 (logout)
-	*/
 
 	constructor(props: AppProperties) {
 		super(props);
@@ -49,7 +45,7 @@ class App extends React.Component<AppProperties, AppState> {
 		YarbErrorHandler.getInstance().addErrorListener(this.handleAxiosError.bind(this));
 	}
 
-	handleAxiosError(error: YarbError) {
+	handleAxiosError(error: YarbError): void {
 		this.setState({
 			errorDrawerOpen: true,
 			errorDrawerText: error.message
@@ -60,9 +56,7 @@ class App extends React.Component<AppProperties, AppState> {
 		this.setState({ errorDrawerOpen: false });
 	}
 
-	//TODO: dialog close on esc (see material ui docs!)
-	//TODO: replace css with useStyle
-	render() {
+	render(): React.ReactNode {
 		//https://medium.com/@anneeb/redirecting-in-react-4de5e517354a
 		return (
 			<div>

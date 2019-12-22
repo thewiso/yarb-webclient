@@ -5,10 +5,11 @@ import { UserCredentials } from "../../../api/yarb/gen/model/user-credentials";
 import YarbApi from "../../../api/yarb/yarb-api";
 import JWT from "../../../scripts/Cache/JWT";
 import TextFieldValidation from "../../../scripts/Validation/Validation";
-import * as ValidationChecks from "../../../scripts/Validation/ValidationChecks";
 import ValidationTextField from "../../Validation/ValidationTextField";
-import { AuthorizationForm, AuthorizationFormProperties, AuthorizationFormState } from "../AuthorizationForm/AuthorizationForm";
+import { AuthorizationForm, AuthorizationFormProperties, AuthorizationFormState, AuthorizationFormStyles } from "../AuthorizationForm/AuthorizationForm";
 import { withRouter } from "react-router-dom";
+import { YarbErrorHandler } from "../../../api/Utils/YarbErrorHandler";
+import { withStyles } from "@material-ui/core";
 
 interface LoginProperties extends AuthorizationFormProperties   {}
 
@@ -25,26 +26,24 @@ class Login extends AuthorizationForm<LoginState> {
 		this.passwordInputRef = React.createRef();
 
 		this.state = {
-			canConfirm: false,
+			canConfirm: true,
 			confirmButtonText: "Login",
 			headerText: "Login",
 			usernameValidation: new TextFieldValidation(
 				"",
-				[ValidationChecks.Alphabetic, ValidationChecks.MinLength(4), ValidationChecks.MaxLength(20)],
+				[],
 				this.handleValidationChange.bind(this)
 			),
 			passwordValidation: new TextFieldValidation(
 				"",
-				[ValidationChecks.MinLength(6), ValidationChecks.MaxLength(20)],
+				[],
 				this.handleValidationChange.bind(this)
 			)
 		};
 	}
 
-	handleValidationChange(validation: TextFieldValidation) {
+	handleValidationChange(validation: TextFieldValidation): void {
 		let newState: LoginState = Object.assign({}, this.state);
-		let canConfirm = this.state.usernameValidation.isValid() && this.state.passwordValidation.isValid();
-		newState.canConfirm = canConfirm;
 		switch (validation.id) {
 			case this.state.usernameValidation.id:
 				newState.usernameValidation = validation;
@@ -57,7 +56,7 @@ class Login extends AuthorizationForm<LoginState> {
 		this.setState(newState);
 	}
 
-	handleKeyDown(event: KeyboardEvent){
+	handleKeyDown(event: KeyboardEvent): void{
 		if(event.key === "Enter"){
 			this.handleSubmit();
 		}
@@ -66,23 +65,22 @@ class Login extends AuthorizationForm<LoginState> {
 	protected getFormContent(): JSX.Element {
 		return (
 			<div>
-				<div className="authorizationInputWrapper">
+				<div className={this.props.classes.authorizationInputWrapper}>
 					<ValidationTextField
 						placeholder="Enter your Username"
 						label="Username"
 						validation={this.state.usernameValidation}
-						className="authorizationInput"
 						fullWidth
+						autoFocus
 					/>
 				</div>
 
-				<div className="authorizationInputWrapper">
+				<div className={this.props.classes.authorizationInputWrapper}>
 					<ValidationTextField
 						type="password"
 						placeholder="Enter your Password"
 						label="Password"
 						validation={this.state.passwordValidation}
-						className="authorizationInput"
 						inputRef={this.passwordInputRef}
 						onKeyDown={this.handleKeyDown.bind(this)}
 						fullWidth
@@ -92,11 +90,10 @@ class Login extends AuthorizationForm<LoginState> {
 		);
 	}
 
-	//TODO: https://openapi-generator.tech/docs/generators/typescript-axios withInterfaces for JWT?
 	protected handleSubmit(): void {
 		if (this.state.canConfirm) {
 			let credentials: UserCredentials = {
-				username: this.state.usernameValidation.value,
+				username: this.state.usernameValidation.value.toLowerCase(),
 				password: this.state.passwordValidation.value
 			};
 
@@ -108,7 +105,7 @@ class Login extends AuthorizationForm<LoginState> {
 					this.props.history.push("/user");
 				})
 				.catch((error: AxiosError) => {
-					if (error.response && error.response.status === 401) {
+					if (error.response && (error.response.status === 401 || error.response.status === 400)) {
 						let passwordValidation = this.state.passwordValidation;
 						passwordValidation.errorMessage = "Username or password is wrong";
 						passwordValidation.error = true;
@@ -118,10 +115,11 @@ class Login extends AuthorizationForm<LoginState> {
 						if (this.passwordInputRef.current) {
 							this.passwordInputRef.current.focus();
 						}
+					}else{
+						YarbErrorHandler.getInstance().handleUnexpectedError(error);
 					}
-					//TODO: else
 				});
 		}
 	}
 }
-export default withRouter(Login);
+export default withStyles(AuthorizationFormStyles, { withTheme: true })(withRouter(Login));

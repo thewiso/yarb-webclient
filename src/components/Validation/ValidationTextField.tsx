@@ -9,7 +9,7 @@ interface ValidationTextFieldProperties extends StandardTextFieldProps {
 interface ValidationTextFieldState {}
 
 class ValidationTextField extends React.Component<ValidationTextFieldProperties, ValidationTextFieldState> {
-	render() {
+	render(): React.ReactNode {
 		return (
 			<TextField
 				placeholder={this.props.placeholder}

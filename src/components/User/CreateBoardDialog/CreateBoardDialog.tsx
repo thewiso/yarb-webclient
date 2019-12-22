@@ -8,7 +8,11 @@ import {
 	Divider,
 	Fab,
 	IconButton,
-	InputAdornment
+	InputAdornment,
+	Theme,
+	createStyles,
+	WithStyles,
+	withStyles
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -16,11 +20,20 @@ import React from "react";
 import TextFieldValidation from "../../../scripts/Validation/Validation";
 import * as ValidationChecks from "../../../scripts/Validation/ValidationChecks";
 import ValidationTextField from "../../Validation/ValidationTextField";
-import "./CreateBoardDialog.css";
 import YarbApi from "../../../api/yarb/yarb-api";
 import { CreateBoard } from "../../../api/yarb/gen/model/create-board";
+import { YarbErrorHandler } from "../../../api/Utils/YarbErrorHandler";
 
-interface CreateBoardDialogProperties {//TODO: create second board -> reset values
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+const styles = (theme: Theme) =>
+	createStyles({
+		divider: {
+			marginTop: theme.spacing(2),
+			marginBottom: theme.spacing(2)
+		}
+	});
+
+interface CreateBoardDialogProperties extends WithStyles<typeof styles> {
 	open: boolean;
 	onClose: (reload: boolean) => void;
 }
@@ -36,7 +49,17 @@ const MAX_COLUMNS = 5;
 class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, CreateBoardDialogState> {
 	constructor(props: CreateBoardDialogProperties) {
 		super(props);
-		this.state = {
+		this.state = this.getDefaultState();
+	}
+
+	public componentWillReceiveProps(nextProps: CreateBoardDialogProperties): void {
+		if (!this.props.open && nextProps.open) {
+			this.setState(this.getDefaultState());
+		}
+	}
+
+	private getDefaultState(): CreateBoardDialogState {
+		return {
 			title: new TextFieldValidation(
 				"",
 				[ValidationChecks.MinLength(3)],
@@ -62,7 +85,7 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 		);
 	}
 
-	handleColumnFieldValidationChange(validation: TextFieldValidation, index: number) {
+	handleColumnFieldValidationChange(validation: TextFieldValidation, index: number): void {
 		const newColumns = [...this.state.columns];
 		newColumns[index] = validation;
 		const newCanConfirm = newColumns.findIndex(candidate => candidate.error) === -1;
@@ -77,18 +100,18 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 		}
 	}
 
-	handleColumnFieldAddition() {
+	handleColumnFieldAddition(): void {
 		if (this.state.columns.length < MAX_COLUMNS) {
 			let newColumns = [...this.state.columns, this.createColumnNameValidation(this.state.columns.length, "")];
 			this.setState({ columns: newColumns });
 		}
 	}
 
-	handleTitleValidationChange(validation: TextFieldValidation) {
+	handleTitleValidationChange(validation: TextFieldValidation): void {
 		this.setState({ title: validation, canConfirm: !validation.error });
 	}
 
-	handleConfirm() {
+	handleConfirm(): void {
 		const createBoard: CreateBoard = {
 			name: this.state.title.value,
 			columnNames: this.state.columns.map(validation => validation.value)
@@ -99,24 +122,24 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 				this.props.onClose(true);
 			})
 			.catch(error => {
-				//TODO:
-				console.error(error);
+				YarbErrorHandler.getInstance().handleUnexpectedError(error);
+				this.props.onClose(false);
 			});
 	}
 
-	handleClose() {
+	handleClose(): void {
 		this.props.onClose(false);
 	}
 
-	render() {
+	render(): React.ReactNode {
 		return (
-			<Dialog open={this.props.open}>
+			<Dialog open={this.props.open} onClose={this.handleClose.bind(this)} maxWidth="sm" fullWidth>
 				<DialogTitle>Create new board</DialogTitle>
 				<DialogContent>
 					<DialogContentText>Create a board with up to 5 columns</DialogContentText>
-					<Divider variant="middle" className="createBoardDivider" />
+					<Divider className={this.props.classes.divider} />
 					<ValidationTextField validation={this.state.title} autoFocus label="Board title" fullWidth />
-					<Divider variant="middle" className="createBoardDivider" />
+					<Divider className={this.props.classes.divider} />
 					{this.state.columns.map((value, index) => (
 						<ValidationTextField
 							validation={value}
@@ -124,7 +147,7 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 							label={index + 1 + ". Column"}
 							InputProps={{
 								endAdornment: (
-									<InputAdornment className="columnDeleteAdornment" position="end">
+									<InputAdornment position="end">
 										{this.state.columns.length > MIN_COLUMNS && (
 											<IconButton onClick={() => this.handleColumnFieldDeletion(index)}>
 												<DeleteIcon />
@@ -160,4 +183,4 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 	}
 }
 
-export default CreateBoardDialog;
+export default withStyles(styles, { withTheme: true })(CreateBoardDialog);

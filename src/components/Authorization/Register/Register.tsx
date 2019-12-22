@@ -1,8 +1,20 @@
-import React from "react";
+import React, { RefObject, KeyboardEvent } from "react";
 import TextFieldValidation from "../../../scripts/Validation/Validation";
 import * as ValidationChecks from "../../../scripts/Validation/ValidationChecks";
 import ValidationTextField from "../../Validation/ValidationTextField";
-import { AuthorizationForm, AuthorizationFormProperties, AuthorizationFormState } from "../AuthorizationForm/AuthorizationForm";
+import {
+	AuthorizationForm,
+	AuthorizationFormProperties,
+	AuthorizationFormState,
+	AuthorizationFormStyles
+} from "../AuthorizationForm/AuthorizationForm";
+import { withStyles } from "@material-ui/core";
+import { withRouter } from "react-router-dom";
+import { UserCredentials } from "../../../api/yarb/gen/model";
+import YarbApi from "../../../api/yarb/yarb-api";
+import JWT from "../../../scripts/Cache/JWT";
+import { AxiosError } from "axios";
+import { YarbErrorHandler } from "../../../api/Utils/YarbErrorHandler";
 
 interface RegisterProperties extends AuthorizationFormProperties {}
 
@@ -15,8 +27,12 @@ interface RegisterState extends AuthorizationFormState {
 //https://stackoverflow.com/questions/37949981/call-child-method-from-parent
 
 class Register extends AuthorizationForm<RegisterState> {
+	private usernameInputRef: RefObject<HTMLDivElement>;
+
 	constructor(props: RegisterProperties) {
 		super(props);
+
+		this.usernameInputRef = React.createRef();
 
 		this.state = {
 			canConfirm: false,
@@ -45,23 +61,26 @@ class Register extends AuthorizationForm<RegisterState> {
 				this.handleValidationChange.bind(this)
 			)
 		};
-	}//TODO: change first passwordInput after secondInput is valid
-	
-	private handleValidationChange(validation: TextFieldValidation) {
+	}
+
+	private handleValidationChange(validation: TextFieldValidation): void {
 		let newState: RegisterState = Object.assign({}, this.state);
-		let canConfirm = this.state.usernameValidation.isValid() && this.state.passwordValidation.isValid();
-		newState.canConfirm = canConfirm;
 		switch (validation.id) {
 			case this.state.usernameValidation.id:
 				newState.usernameValidation = validation;
 				break;
 			case this.state.passwordValidation.id:
 				newState.passwordValidation = validation;
+				this.state.passwordRepetitionValidation.reValidate();
 				break;
 			case this.state.passwordRepetitionValidation.id:
 				newState.passwordRepetitionValidation = validation;
 				break;
 		}
+		newState.canConfirm =
+			this.state.usernameValidation.isValid() &&
+			this.state.passwordValidation.isValid() &&
+			this.state.passwordRepetitionValidation.isValid();
 
 		this.setState(newState);
 	}
@@ -69,43 +88,86 @@ class Register extends AuthorizationForm<RegisterState> {
 	protected getFormContent(): JSX.Element {
 		return (
 			<div>
-				<div className="authorizationInputWrapper">
+				<div className={this.props.classes.authorizationInputWrapper}>
 					<ValidationTextField
 						placeholder="Enter your Username"
 						validation={this.state.usernameValidation}
 						label="Username"
-						className="authorizationInput"
 						fullWidth
+						autoFocus
+						inputRef={this.usernameInputRef}
 					/>
 				</div>
 
-				<div className="authorizationInputWrapper">
+				<div className={this.props.classes.authorizationInputWrapper}>
 					<ValidationTextField
 						type="password"
 						placeholder="Enter your Password"
 						label="Password"
 						validation={this.state.passwordValidation}
-						className="authorizationInput"
 						fullWidth
 					/>
 				</div>
 
-				<div className="authorizationInputWrapper">
+				<div className={this.props.classes.authorizationInputWrapper}>
 					<ValidationTextField
 						type="password"
 						placeholder="Repeat your Password"
 						label="Password"
 						validation={this.state.passwordRepetitionValidation}
-						className="authorizationInput"
 						fullWidth
+						onKeyDown={this.handlePasswordRepititionKeyDown.bind(this)}
 					/>
 				</div>
 			</div>
 		);
 	}
 
+	private handlePasswordRepititionKeyDown(event: KeyboardEvent): void{
+		if(event.key === "Enter"){
+			this.handleSubmit();
+		}
+	}
+
 	protected handleSubmit(): void {
-		console.log("SUBMIT");
+		if (this.state.canConfirm) {
+			const credentials: UserCredentials = {
+				username: this.state.usernameValidation.value.toLowerCase(),
+				password: this.state.passwordValidation.value
+			};
+
+			const api: YarbApi = new YarbApi();
+			api
+				.createUser(credentials)
+				.then(() => {
+					api
+						.login(credentials)
+						.then(value => {
+							JWT.getInstance().setJWTString(value.data.token);
+							this.props.history.push("/user");
+						})
+						.catch(error => {
+							YarbErrorHandler.getInstance().handleUnexpectedError(error);
+						});
+				})
+				.catch((error: AxiosError) => {
+					if (error.response && error.response.status === 409) {
+						let usernameValidation = this.state.usernameValidation;
+						usernameValidation.errorMessage = "Username is already taken";
+						usernameValidation.error = true;
+						usernameValidation.value = "";
+						this.state.passwordRepetitionValidation.value = "";
+						this.state.passwordValidation.value = "";
+
+						this.handleValidationChange(usernameValidation);
+						if (this.usernameInputRef.current) {
+							this.usernameInputRef.current.focus();
+						}
+					} else {
+						YarbErrorHandler.getInstance().handleUnexpectedError(error);
+					}
+				});
+		}
 	}
 }
-export default Register;
+export default withStyles(AuthorizationFormStyles, { withTheme: true })(withRouter(Register));

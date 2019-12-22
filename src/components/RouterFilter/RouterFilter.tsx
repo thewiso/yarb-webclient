@@ -8,7 +8,7 @@ interface RouterFilterProperties {
 interface RouterFilterState {}
 
 class RouterFilter extends React.Component<RouterFilterProperties, RouterFilterState> {
-	render() {
+	render(): React.ReactNode {
 		if (this.props.condition) {
 			return this.props.children;
 		} else {

@@ -1,9 +1,9 @@
+import Axios, { AxiosPromise } from "axios";
 import JWT from "../../scripts/Cache/JWT";
-import { DefaultApi } from "./gen";
-import { CreateBoard, CreateBoardNote } from "./gen/model";
-import Axios, { AxiosInstance, AxiosTransformer } from "axios";
 import { AxiosDeserialization } from "../Utils/AxiosDeserialization";
 import { YarbErrorHandler } from "../Utils/YarbErrorHandler";
+import { DefaultApi } from "./gen";
+import { CreateBoard, CreatedResponse, User, Board, LoginData } from "./gen/model";
 
 const axios = Axios.create({
 	transformResponse: [AxiosDeserialization]
@@ -11,8 +11,9 @@ const axios = Axios.create({
 
 class YarbApi extends DefaultApi {
 	constructor() {
-		//TODO: in property file
-		super(undefined, "http://localhost:8080/yarb", axios);
+		const apiURL = process.env.REACT_APP_API_URL;
+		console.info(`Using API URL: ${apiURL}`)
+		super(undefined, apiURL, axios);
 		this.axios.interceptors.response.use(
 			response => response,
 			rejectedResponse => {
@@ -21,20 +22,24 @@ class YarbApi extends DefaultApi {
 		);
 	}
 
-	public createBoard(createBoard: CreateBoard) {
+	public createBoard(createBoard: CreateBoard): AxiosPromise<CreatedResponse> {
 		return super.createBoard(createBoard, YarbApi.createJWTOptions());
 	}
 
-	public getUser() {
+	public getUser(): AxiosPromise<User> {
 		return super.getUser(YarbApi.getUserId(), YarbApi.createJWTOptions());
 	}
 
-	public getBoardsByOwner() {
+	public getBoardsByOwner(): AxiosPromise<Board[]> {
 		return super.getBoardsByOwner(YarbApi.getUserId(), YarbApi.createJWTOptions());
 	}
 
-	public getBoard(id: number) {
+	public getBoard(id: number): AxiosPromise<Board> {
 		return super.getBoard(id);
+	}
+
+	public refreshToken(): AxiosPromise<LoginData>{
+		return super.refreshToken(YarbApi.createJWTOptions());
 	}
 
 	protected static getUserId(): number {

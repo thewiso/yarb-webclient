@@ -1,7 +1,17 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@material-ui/core";
+import {
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+	TextField
+} from "@material-ui/core";
 import React from "react";
 import { BoardNote, CreateBoardNote, UpdateBoardNote } from "../../../api/yarb/gen/model";
 import YarbApi from "../../../api/yarb/yarb-api";
+import { YarbErrorHandler } from "../../../api/Utils/YarbErrorHandler";
+import { AxiosError } from "axios";
 
 interface CreateOrEditNoteDialogProperties {
 	open: boolean;
@@ -16,12 +26,13 @@ interface CreateOrEditNoteDialogState {
 class CreateOrEditNoteDialog extends React.Component<CreateOrEditNoteDialogProperties, CreateOrEditNoteDialogState> {
 	constructor(props: CreateOrEditNoteDialogProperties) {
 		super(props);
+
 		this.state = {
 			content: this.props.note ? this.props.note.content : ""
 		};
 	}
 
-	handleConfirm() {
+	handleConfirm(): void {
 		if (this.props.columnId) {
 			const createNote: CreateBoardNote = {
 				boardColumnId: this.props.columnId,
@@ -33,8 +44,8 @@ class CreateOrEditNoteDialog extends React.Component<CreateOrEditNoteDialogPrope
 					this.props.onClose(true);
 				})
 				.catch(error => {
-					//TODO:
-					console.error(error);
+					YarbErrorHandler.getInstance().handleUnexpectedError(error);
+					this.props.onClose(false);
 				});
 		} else if (this.props.note) {
 			const updateNote: UpdateBoardNote = {
@@ -42,23 +53,30 @@ class CreateOrEditNoteDialog extends React.Component<CreateOrEditNoteDialogPrope
 			};
 			new YarbApi()
 				.updateNote(this.props.note.id, updateNote)
-				.then(() => {
-					this.props.onClose(true);
+				.then(() => {})
+				.catch((error: AxiosError) => {
+					if (error.response && error.response.status !== 404) {
+						YarbErrorHandler.getInstance().handleUnexpectedError(error);
+					}
 				})
-				.catch(error => {
-					//TODO:
-					console.error(error);
+				.finally(() => {
+					this.props.onClose(true);
 				});
 		}
 	}
 
-	componentWillReceiveProps(nextProps: CreateOrEditNoteDialogProperties) {
-		this.setState({
-			content: nextProps.note ? nextProps.note.content : ""
-		});
-	  }
+	componentWillReceiveProps(nextProps: CreateOrEditNoteDialogProperties): void {
+		if (nextProps.open && !nextProps.note && !nextProps.columnId) {
+			throw new Error("Neither a note nor a columnId is given");
+		}
+		if (!this.props.open && nextProps.open) {
+			this.setState({
+				content: nextProps.note ? nextProps.note.content : ""
+			});
+		}
+	}
 
-	handleClose() {
+	handleClose(): void {
 		this.props.onClose(false);
 	}
 
@@ -70,11 +88,11 @@ class CreateOrEditNoteDialog extends React.Component<CreateOrEditNoteDialogPrope
 		return "Here you can " + (this.props.note ? "edit the note." : "create a new note.");
 	}
 
-	handleContentChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+	handleContentChange(event: React.ChangeEvent<HTMLTextAreaElement>): void {
 		this.setState({ content: event.target.value });
 	}
 
-	render() {
+	render(): React.ReactNode {
 		return (
 			<Dialog open={this.props.open} onClose={this.handleClose.bind(this)}>
 				<DialogTitle>{this.getTitle()}</DialogTitle>

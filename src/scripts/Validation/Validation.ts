@@ -72,6 +72,11 @@ export class TextFieldValidation {
 		this.onChange(this);
 	}
 
+	public reValidate(): void {
+		this.firstVisit = false;
+		this.validate(this.value);
+	}
+
 	private checkValidations(): ValidationCheck | null {
 		let retVal: ValidationCheck | null = null;
 		let i = 0;
