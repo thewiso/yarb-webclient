@@ -65,13 +65,13 @@ class CreateOrEditNoteDialog extends React.Component<CreateOrEditNoteDialogPrope
 		}
 	}
 
-	componentWillReceiveProps(nextProps: CreateOrEditNoteDialogProperties): void {
-		if (nextProps.open && !nextProps.note && !nextProps.columnId) {
+	public componentDidUpdate(prevProps: CreateOrEditNoteDialogProperties): void {
+		if (this.props.open && !this.props.note && !this.props.columnId) {
 			throw new Error("Neither a note nor a columnId is given");
 		}
-		if (!this.props.open && nextProps.open) {
+		if (!prevProps.open && this.props.open) {
 			this.setState({
-				content: nextProps.note ? nextProps.note.content : ""
+				content: this.props.note ? this.props.note.content : ""
 			});
 		}
 	}

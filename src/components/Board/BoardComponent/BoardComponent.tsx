@@ -43,7 +43,7 @@ const styles = (theme: Theme) =>
 			margin: "20px",
 			flexGrow: 1,
 			display: "flex",
-			justifyContent: "space-between",
+			justifyContent: "space-between"
 		},
 		divider: {
 			flexGrow: 0,
@@ -54,10 +54,10 @@ const styles = (theme: Theme) =>
 		addButton: {
 			position: "absolute",
 			bottom: theme.spacing(2),
-			right: theme.spacing(2),
+			right: theme.spacing(2)
 		},
 		columnTitle: {
-			marginBottom: theme.spacing(4),
+			marginBottom: theme.spacing(4)
 		},
 		boardTitle: {
 			marginTop: theme.spacing(2)
@@ -73,7 +73,7 @@ interface MatchParams {
 	id: string;
 }
 
-interface BoardComponentProperties extends RouteComponentProps<MatchParams>, WithStyles<typeof styles> { }
+interface BoardComponentProperties extends RouteComponentProps<MatchParams>, WithStyles<typeof styles> {}
 interface BoardComponentState {
 	board?: Board;
 	boardId: number;
@@ -116,7 +116,7 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 			} else {
 				this.loadBoard();
 			}
-		})
+		});
 	}
 
 	private redirectToHome(): void {
@@ -131,13 +131,13 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 			for (i = 0; i < this.state.board.columns.length; i++) {
 				const column = this.state.board.columns[i];
 				retVal.push(
-					<div className={this.props.classes.column}>
+					<div className={this.props.classes.column} key={column.id}>
 						<Typography variant="h5" align="center" className={this.props.classes.columnTitle}>
 							{column.name}
 						</Typography>
 						<Grid container spacing={1}>
 							{column.notes.map(note => (
-								<Grid item xs={6}>
+								<Grid item xs={6} key={note.id}>
 									<NoteCard
 										note={note}
 										onChange={this.loadBoard.bind(this)}
@@ -152,9 +152,9 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 							aria-label="add"
 							size="small"
 							className={this.props.classes.addButton}
-							onClick={(() => {
+							onClick={() => {
 								this.handleAddButtonClick(column.id);
-							})}
+							}}
 						>
 							<AddIcon />
 						</Fab>
@@ -162,7 +162,7 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 				);
 
 				if (i < this.state.board.columns.length - 1) {
-					retVal.push(<Divider orientation="vertical" className={this.props.classes.divider} />);
+					retVal.push(<Divider orientation="vertical" className={this.props.classes.divider} key={"divider" + i} />);
 				}
 			}
 		}
@@ -218,13 +218,13 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 				<div className={this.props.classes.container}>
 					<AppBar position="static">
 						<Toolbar>
-							<Typography variant="h6">
-								YARB
-							</Typography>
+							<Typography variant="h6">YARB</Typography>
 						</Toolbar>
 					</AppBar>
 					<div>
-						<Typography variant="h5" align="center" color="textSecondary" className={this.props.classes.boardTitle}>{this.state.board.name}</Typography>
+						<Typography variant="h5" align="center" color="textSecondary" className={this.props.classes.boardTitle}>
+							{this.state.board.name}
+						</Typography>
 					</div>
 					<Paper className={this.props.classes.columnContainer} elevation={24}>
 						{this.createBoardColumns()}
@@ -244,9 +244,11 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 				</div>
 			);
 		} else {
-			return <div>
-				<CircularProgress className={this.props.classes.loadingCircle} />
-			</div>;
+			return (
+				<div>
+					<CircularProgress className={this.props.classes.loadingCircle} />
+				</div>
+			);
 		}
 	}
 }

@@ -83,7 +83,7 @@ class BoardOverview extends React.Component<BoardOverviewProperties, BoardOvervi
 							board
 						) => (
 							//https://material-ui.com/components/grid-list/
-							<Grid item xs={3}>
+							<Grid item xs={3} key={board.id}>
 								<BoardCard board={board} />
 							</Grid>
 						))}

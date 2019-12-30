@@ -52,8 +52,8 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 		this.state = this.getDefaultState();
 	}
 
-	public componentWillReceiveProps(nextProps: CreateBoardDialogProperties): void {
-		if (!this.props.open && nextProps.open) {
+	public componentDidUpdate(prevProps: CreateBoardDialogProperties): void {
+		if (!prevProps.open && this.props.open) {
 			this.setState(this.getDefaultState());
 		}
 	}
@@ -72,7 +72,7 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 				this.createColumnNameValidation(2, "Mad"),
 				this.createColumnNameValidation(3, "Action Points")
 			],
-			canConfirm: false
+			canConfirm: false,
 		};
 	}
 

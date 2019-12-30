@@ -34,14 +34,9 @@ class DeleteNoteDialog extends React.Component<DeleteNoteDialogProperties, Delet
 		}
 	}
 
-	componentWillReceiveProps(nextProps: DeleteNoteDialogProperties): void {
-		if (nextProps.open && !nextProps.note) {
+	public componentDidUpdate(prevProps: DeleteNoteDialogProperties): void {
+		if (this.props.open && !this.props.note) {
 			throw new Error("No note is given");
-		}
-		if (!this.props.open && nextProps.open) {
-			this.setState({
-				content: nextProps.note ? nextProps.note.content : ""
-			});
 		}
 	}
 
