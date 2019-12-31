@@ -87,7 +87,11 @@ interface BoardComponentState {
 	selectedNote?: BoardNote; //the note is currently edited/deleted, depending on the currently opened dialog
 }
 
+const POLLING_INTERVAL = 1000 * 5;
+
 class BoardComponent extends React.Component<BoardComponentProperties, BoardComponentState> {
+	private pollingTimeoutId: number | null = null;
+
 	constructor(props: BoardComponentProperties) {
 		super(props);
 
@@ -110,6 +114,12 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 				} else {
 					YarbErrorHandler.getInstance().handleUnexpectedError(error);
 				}
+			})
+			.finally(() => {
+				if(this.pollingTimeoutId){
+					window.clearTimeout(this.pollingTimeoutId);
+				}
+				this.pollingTimeoutId = window.setTimeout(this.loadBoard.bind(this), POLLING_INTERVAL);
 			});
 	}
 
@@ -222,8 +232,10 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 				<div className={this.props.classes.container}>
 					<AppBar position="static">
 						<Toolbar>
-							<YarbIcon/>
-							<Typography variant="h6" className={this.props.classes.appBarTitle}>YARB</Typography>
+							<YarbIcon />
+							<Typography variant="h6" className={this.props.classes.appBarTitle}>
+								YARB
+							</Typography>
 						</Toolbar>
 					</AppBar>
 					<div>
