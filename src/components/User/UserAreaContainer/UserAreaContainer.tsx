@@ -22,6 +22,7 @@ import { Redirect, Route, RouteComponentProps, Switch, withRouter } from "react-
 import JWT from "../../../scripts/Cache/JWT";
 import BoardOverview from "../BoardOverview/BoardOverview";
 import About from "../About/About";
+import YarbIcon from "../../YarbIcon/YarbIcon";
 
 interface UserAreaContainerProperties extends RouteComponentProps, WithStyles<typeof styles> {}
 interface UserAreaContainerState {}
@@ -48,7 +49,8 @@ const styles = (theme: Theme) =>
 			position: "relative"
 		},
 		appBarTitle: {
-			flexGrow: 1
+			flexGrow: 1,
+			marginLeft: theme.spacing(2)
 		}
 	});
 
@@ -68,6 +70,7 @@ class UserAreaContainer extends React.Component<UserAreaContainerProperties, Use
 			<div className={this.props.classes.userAreaRoot}>
 				<AppBar position="static">
 					<Toolbar>
+						<YarbIcon/>
 						<Typography variant="h6" className={this.props.classes.appBarTitle}>
 							YARB
 						</Typography>

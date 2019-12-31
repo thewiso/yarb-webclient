@@ -22,6 +22,7 @@ import CreateOrEditNoteDialog from "../CreateOrEditNoteDialog/CreateOrEditNoteDi
 import DeleteNoteDialog from "../DeleteNoteDialog/DeleteNoteDialog";
 import { YarbErrorHandler } from "../../../api/Utils/YarbErrorHandler";
 import { AxiosError } from "axios";
+import YarbIcon from "../../YarbIcon/YarbIcon";
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const styles = (theme: Theme) =>
@@ -66,6 +67,9 @@ const styles = (theme: Theme) =>
 			position: "fixed",
 			top: "50%",
 			left: "50%"
+		},
+		appBarTitle: {
+			marginLeft: theme.spacing(2)
 		}
 	});
 
@@ -218,7 +222,8 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 				<div className={this.props.classes.container}>
 					<AppBar position="static">
 						<Toolbar>
-							<Typography variant="h6">YARB</Typography>
+							<YarbIcon/>
+							<Typography variant="h6" className={this.props.classes.appBarTitle}>YARB</Typography>
 						</Toolbar>
 					</AppBar>
 					<div>

@@ -7,7 +7,8 @@ import {
 	Theme,
 	Typography,
 	WithStyles,
-	withStyles
+	withStyles,
+	Badge
 } from "@material-ui/core";
 import { yellow } from "@material-ui/core/colors";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -34,6 +35,10 @@ const styles = (theme: Theme) =>
 		},
 		noteActionButton: {
 			backgroundColor: yellow[800]
+		},
+		voteBadge: {
+			top: theme.spacing(0.5),
+			right: theme.spacing(0.5)
 		}
 	});
 
@@ -92,20 +97,23 @@ class NoteCard extends React.Component<NoteCardProperties, NoteCardState> {
 			<Card className={this.props.classes.noteCard}>
 				<CardContent>
 					<Typography className={this.props.classes.cardText}>{this.props.note.content}</Typography>
-					<Typography align="right" color="textSecondary" variant="body2">
-						{this.props.note.votes} Votes
-					</Typography>
 				</CardContent>
 				<CardActions>
-					<Fab
-						className={`${this.props.classes.voteButton} 
-						${this.state.voted ? "" : this.props.classes.noteActionButton}`}
-						color={this.state.voted ? "secondary" : "default"}
-						size="small"
-						onClick={this.handleVoteButtonClick.bind(this)}
+					<Badge
+						badgeContent={this.props.note.votes}
+						color="primary"
+						classes={{ anchorOriginTopRightRectangle: this.props.classes.voteBadge }}
 					>
-						{this.state.voted ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
-					</Fab>
+						<Fab
+							className={`${this.props.classes.voteButton} 
+						${this.state.voted ? "" : this.props.classes.noteActionButton}`}
+							color={this.state.voted ? "secondary" : "default"}
+							size="small"
+							onClick={this.handleVoteButtonClick.bind(this)}
+						>
+							{this.state.voted ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
+						</Fab>
+					</Badge>
 					<Fab
 						className={this.props.classes.noteActionButton}
 						size="small"
