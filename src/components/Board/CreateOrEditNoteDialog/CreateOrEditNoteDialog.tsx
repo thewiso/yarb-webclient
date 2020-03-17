@@ -99,6 +99,7 @@ class CreateOrEditNoteDialog extends React.Component<CreateOrEditNoteDialogPrope
 				<DialogContent>
 					<DialogContentText>{this.getDescription()}</DialogContentText>
 					<TextField
+						id="cardContentInput"
 						multiline={true}
 						placeholder="Write your content here"
 						value={this.state.content}
@@ -108,10 +109,10 @@ class CreateOrEditNoteDialog extends React.Component<CreateOrEditNoteDialogPrope
 					/>
 				</DialogContent>
 				<DialogActions>
-					<Button variant="contained" onClick={this.handleConfirm.bind(this)} color="primary">
+					<Button id="confirmCardEditing" variant="contained" onClick={this.handleConfirm.bind(this)} color="primary">
 						OK
 					</Button>
-					<Button onClick={this.handleClose.bind(this)} color="primary">
+					<Button id="cancelCardEditing" onClick={this.handleClose.bind(this)} color="primary">
 						Cancel
 					</Button>
 				</DialogActions>

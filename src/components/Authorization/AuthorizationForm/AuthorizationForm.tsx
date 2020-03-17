@@ -56,10 +56,11 @@ export abstract class AuthorizationForm<T extends AuthorizationFormState> extend
 				</CardContent>
 				<CardActions>
 					<div className={this.props.classes.authorizationCardButtonContainer}>
-						<Button variant="contained" color="primary" disabled={!this.state.canConfirm} onClick={this.handleSubmit}>
+						<Button id="confirmLoginRegister" variant="contained" color="primary" disabled={!this.state.canConfirm} onClick={this.handleSubmit}>
 							{this.state.confirmButtonText}
 						</Button>
 						<Button
+							id="switchLoginRegister"
 							variant="contained"
 							onClick={() => {
 								this.props.handleNavigationChange(this);

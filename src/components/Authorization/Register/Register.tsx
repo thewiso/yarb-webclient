@@ -90,6 +90,7 @@ class Register extends AuthorizationForm<RegisterState> {
 			<div>
 				<div className={this.props.classes.authorizationInputWrapper}>
 					<ValidationTextField
+						id="registerUsername"
 						placeholder="Enter your Username"
 						validation={this.state.usernameValidation}
 						label="Username"
@@ -101,6 +102,7 @@ class Register extends AuthorizationForm<RegisterState> {
 
 				<div className={this.props.classes.authorizationInputWrapper}>
 					<ValidationTextField
+						id="registerPassword"
 						type="password"
 						placeholder="Enter your Password"
 						label="Password"
@@ -111,6 +113,7 @@ class Register extends AuthorizationForm<RegisterState> {
 
 				<div className={this.props.classes.authorizationInputWrapper}>
 					<ValidationTextField
+						id="registerPasswordRepetition"
 						type="password"
 						placeholder="Repeat your Password"
 						label="Password"

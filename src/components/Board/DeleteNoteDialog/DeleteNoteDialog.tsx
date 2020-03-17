@@ -52,10 +52,10 @@ class DeleteNoteDialog extends React.Component<DeleteNoteDialogProperties, Delet
 					<DialogContentText>Do you really want to delete this note?</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button variant="contained" onClick={this.handleConfirm.bind(this)} color="primary">
+					<Button id="confirmCardDeletion" variant="contained" onClick={this.handleConfirm.bind(this)} color="primary">
 						Yes
 					</Button>
-					<Button onClick={this.handleClose.bind(this)} color="primary">
+					<Button id="cancelCardDeletion" onClick={this.handleClose.bind(this)} color="primary">
 						Cancel
 					</Button>
 				</DialogActions>

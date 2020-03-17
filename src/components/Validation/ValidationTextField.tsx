@@ -26,6 +26,7 @@ class ValidationTextField extends React.Component<ValidationTextFieldProperties,
 				fullWidth={this.props.fullWidth}
 				autoFocus={this.props.autoFocus}
 				InputProps={this.props.InputProps}
+				id={this.props.id}
 				// {...this.props}
 			/>
 		);

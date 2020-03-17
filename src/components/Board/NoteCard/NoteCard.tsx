@@ -31,7 +31,13 @@ const styles = (theme: Theme) =>
 			wordWrap: "break-word"
 		},
 		noteCard: {
-			backgroundColor: yellow[400]
+			backgroundColor: yellow[400],
+			height: "100%",
+			display: "flex",
+			flexDirection: "column"
+		},
+		noteCardContent: {
+			marginBottom: "auto"
 		},
 		noteActionButton: {
 			backgroundColor: yellow[800]
@@ -94,19 +100,21 @@ class NoteCard extends React.Component<NoteCardProperties, NoteCardState> {
 
 	render(): React.ReactNode {
 		return (
-			<Card className={this.props.classes.noteCard}>
-				<CardContent>
+			<Card id={"card-" + this.props.note.id} className={this.props.classes.noteCard}>
+				<CardContent className={this.props.classes.noteCardContent}>
 					<Typography className={this.props.classes.cardText}>{this.props.note.content}</Typography>
 				</CardContent>
 				<CardActions>
 					<Badge
+						id={"likeBadge-" + this.props.note.id}
 						badgeContent={this.props.note.votes}
 						color="primary"
 						classes={{ anchorOriginTopRightRectangle: this.props.classes.voteBadge }}
+						className={this.props.classes.voteButton}
 					>
 						<Fab
-							className={`${this.props.classes.voteButton} 
-						${this.state.voted ? "" : this.props.classes.noteActionButton}`}
+							id={"likeButton-" + this.props.note.id}
+							className={this.state.voted ? "" : this.props.classes.noteActionButton}
 							color={this.state.voted ? "secondary" : "default"}
 							size="small"
 							onClick={this.handleVoteButtonClick.bind(this)}
@@ -115,6 +123,7 @@ class NoteCard extends React.Component<NoteCardProperties, NoteCardState> {
 						</Fab>
 					</Badge>
 					<Fab
+						id={"editButton-" + this.props.note.id}
 						className={this.props.classes.noteActionButton}
 						size="small"
 						onClick={() => this.props.onEdit(this.props.note)}
@@ -122,6 +131,7 @@ class NoteCard extends React.Component<NoteCardProperties, NoteCardState> {
 						<EditIcon fontSize="small" />
 					</Fab>
 					<Fab
+						id={"deleteButton-" + this.props.note.id}
 						className={this.props.classes.noteActionButton}
 						size="small"
 						onClick={() => this.props.onDelete(this.props.note)}

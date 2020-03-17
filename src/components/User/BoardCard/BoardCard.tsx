@@ -16,15 +16,19 @@ class BoardCard extends React.Component<BoardCardProperties, BoardCardState> {
 
 	render(): React.ReactNode {
 		return (
-			<Card>
+			<Card id={"boardCard-" + this.props.board.id}>
 				<CardContent>
 					<Typography color="textSecondary">{this.getFormattedDate()}</Typography>
 					<Typography variant="h5">{this.props.board.name}</Typography>
 					<Typography color="textSecondary">{this.props.board.columns.map(board => board.name).join(", ")}</Typography>
 				</CardContent>
 				<CardActions>
-					<Button onClick={this.handleOpenClick.bind(this)}>Open</Button>
-					<Button href={this.getMailTo()}>Invite</Button>
+					<Button id={"openBoardButton-" + this.props.board.id} onClick={this.handleOpenClick.bind(this)}>
+						Open
+					</Button>
+					<Button id={"inviteToBoardButton-" + this.props.board.id} href={this.getMailTo()}>
+						Invite
+					</Button>
 				</CardActions>
 			</Card>
 		);

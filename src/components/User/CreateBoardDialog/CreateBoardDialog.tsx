@@ -72,7 +72,7 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 				this.createColumnNameValidation(2, "Mad"),
 				this.createColumnNameValidation(3, "Action Points")
 			],
-			canConfirm: false,
+			canConfirm: false
 		};
 	}
 
@@ -138,10 +138,17 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 				<DialogContent>
 					<DialogContentText>Create a board with up to 5 columns</DialogContentText>
 					<Divider className={this.props.classes.divider} />
-					<ValidationTextField validation={this.state.title} autoFocus label="Board title" fullWidth />
+					<ValidationTextField
+						id="boardTitleInput"
+						validation={this.state.title}
+						autoFocus
+						label="Board title"
+						fullWidth
+					/>
 					<Divider className={this.props.classes.divider} />
 					{this.state.columns.map((value, index) => (
 						<ValidationTextField
+							id={"boardColumnInput" + index}
 							validation={value}
 							key={index}
 							label={index + 1 + ". Column"}
@@ -160,13 +167,19 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 						/>
 					))}
 					{this.state.columns.length < MAX_COLUMNS && (
-						<Fab color="primary" aria-label="add" onClick={this.handleColumnFieldAddition.bind(this)}>
+						<Fab
+							id="addBoardColumn"
+							color="primary"
+							aria-label="add"
+							onClick={this.handleColumnFieldAddition.bind(this)}
+						>
 							<AddIcon />
 						</Fab>
 					)}
 				</DialogContent>
 				<DialogActions>
 					<Button
+						id="confirmBoardCreation"
 						variant="contained"
 						onClick={this.handleConfirm.bind(this)}
 						color="primary"
@@ -174,7 +187,7 @@ class CreateBoardDialog extends React.Component<CreateBoardDialogProperties, Cre
 					>
 						OK
 					</Button>
-					<Button onClick={this.handleClose.bind(this)} color="primary">
+					<Button id="cancelBoardCreation" onClick={this.handleClose.bind(this)} color="primary">
 						Cancel
 					</Button>
 				</DialogActions>

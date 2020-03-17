@@ -116,7 +116,7 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 				}
 			})
 			.finally(() => {
-				if(this.pollingTimeoutId){
+				if (this.pollingTimeoutId) {
 					window.clearTimeout(this.pollingTimeoutId);
 				}
 				this.pollingTimeoutId = window.setTimeout(this.loadBoard.bind(this), POLLING_INTERVAL);
@@ -162,6 +162,7 @@ class BoardComponent extends React.Component<BoardComponentProperties, BoardComp
 							))}
 						</Grid>
 						<Fab
+							id={"addButton-" + column.id}
 							color="primary"
 							aria-label="add"
 							size="small"

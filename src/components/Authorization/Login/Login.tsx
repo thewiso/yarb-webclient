@@ -67,6 +67,7 @@ class Login extends AuthorizationForm<LoginState> {
 			<div>
 				<div className={this.props.classes.authorizationInputWrapper}>
 					<ValidationTextField
+						id="username"
 						placeholder="Enter your Username"
 						label="Username"
 						validation={this.state.usernameValidation}
@@ -77,6 +78,7 @@ class Login extends AuthorizationForm<LoginState> {
 
 				<div className={this.props.classes.authorizationInputWrapper}>
 					<ValidationTextField
+						id="password"
 						type="password"
 						placeholder="Enter your Password"
 						label="Password"

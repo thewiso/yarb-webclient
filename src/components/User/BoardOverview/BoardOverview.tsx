@@ -66,6 +66,7 @@ class BoardOverview extends React.Component<BoardOverviewProperties, BoardOvervi
 					<Typography variant="h4" display="inline">Boards</Typography>
 				</div>
 				<Fab
+						id="createBoard"
 						color="primary"
 						aria-label="add"
 						size="small"

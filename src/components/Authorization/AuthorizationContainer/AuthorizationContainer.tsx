@@ -36,10 +36,10 @@ class AuthorizationContainer extends React.Component<AuthorizationContainerPrope
 	handleNavigationChange(source: AuthorizationForm<any>): void {
 		let newFormClass: any;
 
-		if (source.constructor.name === "Login") {
-			newFormClass = Register;
-		} else if (source.constructor.name === "Register") {
+		if (source.props.navigationButtonText === "Login") {
 			newFormClass = Login;
+		} else if (source.props.navigationButtonText === "Register") {
+			newFormClass = Register;
 		}
 
 		this.setState({
